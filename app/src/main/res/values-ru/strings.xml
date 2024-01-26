@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WeightCalendar</string>
+    <string name="month">"Месяц: "</string>
+    <string name="year">"Год: "</string>
+    <string name="morning">"У: "</string>
+    <string name="evening">"В: "</string>
+</resources>

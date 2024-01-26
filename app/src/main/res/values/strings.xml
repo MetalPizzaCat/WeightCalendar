@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">WeightCalendar</string>
+    <string name="weight_calendar_icon_desc">Weight calendar</string>
+    <string name="charts_icon_desc">Charts</string>
+    <string name="month">"Month: "</string>
+    <string name="year">"Year: "</string>
+    <string name="morning">"M: "</string>
+    <string name="evening">"E: "</string>
+</resources>
