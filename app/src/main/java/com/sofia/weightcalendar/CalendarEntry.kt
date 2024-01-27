@@ -23,6 +23,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -50,7 +51,7 @@ fun StepEntryField(
         label = { Text(label) },
         value = value,
         singleLine = true,
-        textStyle = TextStyle.Default.copy(fontSize = 24.sp),
+        textStyle = TextStyle.Default.copy(fontSize = 24.sp, fontWeight = FontWeight.Bold),
         onValueChange = { value = it },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number
@@ -62,11 +63,14 @@ fun StepEntryField(
                 }
             }
             .background(
-                color = if (value != "" && ((value.toIntOrNull() ?: 0) < targetValue)
-                ) {
-                    Color.Red
-                } else {
+                color = if (value == "") {
                     Color.White
+                } else {
+                    if ((value.toIntOrNull() ?: 0) < targetValue) {
+                        Color.Red
+                    } else {
+                        Color.Green
+                    }
                 }
             ),
         keyboardActions = KeyboardActions(onDone = {
@@ -100,6 +104,7 @@ fun DataEntryRow(
                 text = day.toString(),
                 modifier = Modifier.weight(0.2f),
                 fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
         } else {
@@ -107,10 +112,12 @@ fun DataEntryRow(
                 Text(
                     text = day.toString(),
                     fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
                 Text(
                     text = dayOfWeek,
+                    fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )
             }

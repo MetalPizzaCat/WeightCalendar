@@ -35,10 +35,11 @@ fun AppSettings(appViewModel: AppViewModel, modifier: Modifier = Modifier) {
                 GatedOutlineTextField(
                     text = steps.toString(),
                     label = { Text(stringResource(R.string.min_steps)) },
+                    emitChangeOnFocusLoss = false,
                     modifier = Modifier.weight(0.6f)
                 ) {
                     appViewModel.setTargetSteps(it.toIntOrNull() ?: 0)
-                    isEditingSteps = false
+                    //isEditingSteps = false
                 }
             } else {
                 Text(steps.toString(), fontSize = 24.sp)

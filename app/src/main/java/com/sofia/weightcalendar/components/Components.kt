@@ -9,7 +9,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 
@@ -18,12 +20,14 @@ import androidx.compose.ui.unit.sp
  * Text field is always one line
  * @param text Initial text
  * @param label Label component of the text field
+ * @param emitChangeOnFocusLoss If true the change event will also emit when component looses focus
  */
 @Composable
 fun GatedOutlineTextField(
     text: String,
     label: @Composable (() -> Unit),
     modifier: Modifier = Modifier,
+    emitChangeOnFocusLoss: Boolean = true,
     onValueChanged: (String) -> Unit
 ) {
     var value by remember { mutableStateOf(text) }
@@ -31,7 +35,7 @@ fun GatedOutlineTextField(
         label = label,
         value = value,
         singleLine = true,
-        textStyle = TextStyle.Default.copy(fontSize = 24.sp),
+        textStyle = TextStyle.Default.copy(fontSize = 24.sp, fontWeight = FontWeight.Bold),
         onValueChange = { value = it },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number
