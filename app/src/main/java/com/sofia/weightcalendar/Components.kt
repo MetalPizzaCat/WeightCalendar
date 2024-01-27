@@ -36,11 +36,11 @@ fun AppScaffold(
 
     var selectedYear by remember { mutableStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
     var selectedMonth by remember { mutableStateOf(Calendar.getInstance().get(Calendar.MONTH)) }
-    var showingCaledar by remember { mutableStateOf(false) }
+    var showingCalendar by remember { mutableStateOf(false) }
 
     Scaffold(topBar = {
         Row {
-            MonthSelector(selectedMonth, selectedYear, modifier = Modifier.weight(0.7f)) {
+            MonthSelector(selectedMonth, modifier = Modifier.weight(0.7f)) {
                 selectedMonth = it
                 onTimeChanged(selectedYear, selectedMonth)
             }
@@ -51,13 +51,13 @@ fun AppScaffold(
         }
     }, bottomBar = {
         BottomAppBar(actions = {
-            IconButton(onClick = { showingCaledar = true }) {
+            IconButton(onClick = { showingCalendar = true }) {
                 Icon(
                     Icons.Filled.DateRange,
                     contentDescription = stringResource(R.string.weight_calendar_icon_desc)
                 )
             }
-            IconButton(onClick = { showingCaledar = false }) {
+            IconButton(onClick = { showingCalendar = false }) {
                 Icon(
                     Icons.Filled.Info,
                     contentDescription = stringResource(R.string.charts_icon_desc)
@@ -76,11 +76,14 @@ fun AppScaffold(
     }
 }
 
+/**
+ * Simple drop box for the months with month names
+ * @param currentMonth Current month
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MonthSelector(
     currentMonth: Int,
-    selectedYear: Int,
     modifier: Modifier = Modifier,
     monthSelected: (Int) -> Unit
 ) {
@@ -112,9 +115,17 @@ fun MonthSelector(
     }
 }
 
+/**
+ * Simple drop box for the year that starts with this year - 10 and goes until this year + 100
+ * @param currentYear Current year
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun YearSelector(currentYear: Int, modifier: Modifier = Modifier, yearSelected: (Int) -> Unit) {
+fun YearSelector(
+    currentYear: Int,
+    modifier: Modifier = Modifier,
+    yearSelected: (Int) -> Unit
+) {
     var monthMenuExpanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = monthMenuExpanded,
         modifier = modifier,

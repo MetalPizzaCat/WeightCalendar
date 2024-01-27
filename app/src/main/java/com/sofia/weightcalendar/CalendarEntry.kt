@@ -26,6 +26,47 @@ import androidx.compose.ui.unit.sp
 import java.text.DateFormatSymbols
 import java.time.YearMonth
 
+/**
+ * Template component for the entry field that will handle end of input both on Done action and loss of focus
+ * @param label Label text for the TextField itself
+ * @param currentValue Current input value for the field
+ */
+@Composable
+fun WeightEntryField(
+    label: String,
+    currentValue: Float,
+    modifier: Modifier = Modifier,
+    onValueChanged: (Float) -> Unit
+) {
+    var value by remember { mutableStateOf(currentValue.toString()) }
+    OutlinedTextField(
+        label = { Text(label) },
+        value = value,
+        singleLine = true,
+        textStyle = TextStyle.Default.copy(fontSize = 24.sp),
+        onValueChange = { value = it },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number
+        ),
+        modifier = modifier
+            .onFocusChanged {
+                if (!it.isFocused) {
+                    onValueChanged(value.toFloatOrNull() ?: 0.0f)
+                }
+            },
+        keyboardActions = KeyboardActions(onDone = {
+            onValueChanged(value.toFloatOrNull() ?: 0.0f)
+        })
+    )
+}
+
+/**
+ * Component that handles input for the entire day
+ * @param day Day in month which will be displayed
+ * @param dayOfWeek Which day name to display under number. If null nothing is displayed
+ * @param morningWeight Current morning weight
+ * @param eveningWeight Current evening weight
+ */
 @Composable
 fun DataEntryRow(
     day: Int,
@@ -35,9 +76,6 @@ fun DataEntryRow(
     onMorningWeightChanged: (Float) -> Unit,
     onEveningWeightChanged: (Float) -> Unit
 ) {
-    var currentMorningWeight by remember { mutableStateOf((morningWeight ?: 0).toString()) }
-    var currentEveningWeight by remember { mutableStateOf((eveningWeight ?: 0).toString()) }
-
     Row(modifier = Modifier.padding(5.dp)) {
         if (dayOfWeek == null) {
             Text(
@@ -57,50 +95,29 @@ fun DataEntryRow(
                 )
             }
         }
-        OutlinedTextField(
-            label = { Text(stringResource(R.string.morning)) },
-            value = currentMorningWeight,
-            singleLine = true,
-            textStyle = TextStyle.Default.copy(fontSize = 24.sp),
-            onValueChange = { currentMorningWeight = it },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number
-            ),
-            modifier = Modifier
-                .weight(0.3f)
-                .onFocusChanged {
-                    if (!it.isFocused) {
-                        onMorningWeightChanged(currentMorningWeight.toFloatOrNull() ?: 0.0f)
-                    }
-                },
-            keyboardActions = KeyboardActions(onDone = {
-                onMorningWeightChanged(currentMorningWeight.toFloatOrNull() ?: 0.0f)
-            })
+        WeightEntryField(
+            label = stringResource(R.string.morning),
+            currentValue = morningWeight ?: 0.0f,
+            modifier = Modifier.weight(0.3f),
+            onValueChanged = onMorningWeightChanged
         )
-        OutlinedTextField(
-            label = { Text(stringResource(R.string.evening)) },
-            value = currentEveningWeight,
-            singleLine = true,
-            textStyle = TextStyle.Default.copy(fontSize = 24.sp),
-            onValueChange = { currentEveningWeight = it },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number
-            ),
-            modifier = Modifier
-                .weight(0.3f)
-                .onFocusChanged {
-                    if (!it.isFocused) {
-                        onEveningWeightChanged(currentEveningWeight.toFloatOrNull() ?: 0.0f)
-                    }
-
-                },
-            keyboardActions = KeyboardActions(onDone = {
-                onEveningWeightChanged(currentEveningWeight.toFloatOrNull() ?: 0.0f)
-            })
+        WeightEntryField(
+            label = stringResource(R.string.evening),
+            currentValue = eveningWeight ?: 0.0f,
+            modifier = Modifier.weight(0.3f),
+            onValueChanged = onEveningWeightChanged
         )
     }
 }
 
+/**
+ *  Component responsible for handling the day value entry for a month
+ *  @param appViewModel Current view model that has access to the app data
+ *  @param year Currently selected year
+ *  @param month Currently selected month
+ *  @param onMorningWeightChanged Will be called when one of the child entry objects changes it's value
+ *  @param onMorningWeightChanged Will be called when one of the child entry objects changes it's value
+ *  */
 @Composable
 fun CalendarEditor(
     appViewModel: AppViewModel,
@@ -115,34 +132,45 @@ fun CalendarEditor(
     LazyColumn(modifier = modifier) {
         entries?.let {
             items(items = it, key = { entry -> entry.uid ?: -1 }) { day ->
-                ElevatedCard {
-                    DataEntryRow(
-                        day = day.day,
-                        dayOfWeek = DateFormatSymbols().shortWeekdays[YearMonth.of(year, month + 1)
-                            .atDay(day.day).dayOfWeek.value],
-                        morningWeight = day.morningWeight,
-                        eveningWeight = day.eveningWeight,
-                        onEveningWeightChanged = { weight ->
-                            onEveningWeightChanged(
-                                DayWeightData(
-                                    year,
-                                    month,
-                                    day.day,
-                                    weight
-                                )
+                // when switching from month with more days than the one we switched to
+                // we run into the problem of LazyColumn still keeping them loaded and trying to updated them
+                // but running outside of the day range
+                // so we just do a sanity check to make sure that they day is in a valid range
+                if (day.day <= YearMonth.of(year, month + 1).lengthOfMonth()) {
+
+                    ElevatedCard {
+                        DataEntryRow(
+                            day = day.day,
+                            // to ensure that week days are properly named in every language
+                            dayOfWeek = DateFormatSymbols().shortWeekdays[YearMonth.of(
+                                year,
+                                month + 1
                             )
-                        },
-                        onMorningWeightChanged = { weight ->
-                            onMorningWeightChanged(
-                                DayWeightData(
-                                    year,
-                                    month,
-                                    day.day,
-                                    weight
+                                .atDay(day.day).dayOfWeek.value],
+                            morningWeight = day.morningWeight,
+                            eveningWeight = day.eveningWeight,
+                            onEveningWeightChanged = { weight ->
+                                onEveningWeightChanged(
+                                    DayWeightData(
+                                        year,
+                                        month,
+                                        day.day,
+                                        weight
+                                    )
                                 )
-                            )
-                        },
-                    )
+                            },
+                            onMorningWeightChanged = { weight ->
+                                onMorningWeightChanged(
+                                    DayWeightData(
+                                        year,
+                                        month,
+                                        day.day,
+                                        weight
+                                    )
+                                )
+                            },
+                        )
+                    }
                 }
             }
         }
