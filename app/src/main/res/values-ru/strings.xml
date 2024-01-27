@@ -3,6 +3,6 @@
     <string name="app_name">WeightCalendar</string>
     <string name="month">"Месяц: "</string>
     <string name="year">"Год: "</string>
-    <string name="morning">"У: "</string>
-    <string name="evening">"В: "</string>
+    <string name="morning">Утро</string>
+    <string name="evening">Вечер</string>
 </resources>

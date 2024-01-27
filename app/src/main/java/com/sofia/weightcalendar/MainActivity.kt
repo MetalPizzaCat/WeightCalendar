@@ -66,6 +66,7 @@ class MainActivity : ComponentActivity() {
                 Calendar.getInstance().get(Calendar.MONTH)
             )
         }
+
         setContent {
             WeightCalendarTheme {
                 // A surface container using the 'background' color from the theme

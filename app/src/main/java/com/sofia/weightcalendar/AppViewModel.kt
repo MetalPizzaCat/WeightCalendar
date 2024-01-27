@@ -12,8 +12,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class AppViewModel(val repository: EntryRepository) : ViewModel() {
-    val applicationScope = CoroutineScope(SupervisorJob())
-    val allEntries: LiveData<List<Entry>> = repository.allEntries.asLiveData()
+
 
     fun entriesForMonth(month: Int, year: Int) =
         repository.entriesForMonth(month, year).asLiveData()
