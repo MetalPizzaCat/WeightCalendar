@@ -1,15 +1,21 @@
 package com.sofia.weightcalendar
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -17,62 +23,153 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
+import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
+import com.patrykandpatrick.vico.compose.chart.Chart
+import com.patrykandpatrick.vico.compose.chart.line.lineChart
+import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
+import com.patrykandpatrick.vico.core.entry.entryOf
 import java.text.DateFormatSymbols
 import java.util.Calendar
 
+enum class AppScreenState {
+    CALENDAR, CHART, SETTINGS
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ChartDisplay(appViewModel: AppViewModel, modifier: Modifier = Modifier) {
+
+    val entries by appViewModel.entriesForMonth(1, 2024).observeAsState()
+    var morningSelected by remember { mutableStateOf(true) }
+    var eveningSelected by remember { mutableStateOf(false) }
+
+    val data =
+        ChartEntryModelProducer(entries?.map { i -> entryOf(i.day, i.morningWeight ?: 0f) }
+            ?: List(1) { entryOf(0f, 0f) })
+    Column(modifier = modifier) {
+        Row {
+            FilterChip(selected = morningSelected,
+                leadingIcon = if (morningSelected) {
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Done,
+                            contentDescription = "Done icon",
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
+                } else {
+                    null
+                },
+                onClick = { morningSelected = !morningSelected },
+                label = {
+                    Text(
+                        stringResource(R.string.morning)
+                    )
+                })
+            FilterChip(selected = eveningSelected,
+                leadingIcon = if (eveningSelected) {
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Done,
+                            contentDescription = "Done icon",
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
+                } else {
+                    null
+                },
+                onClick = { eveningSelected = !eveningSelected },
+                label = {
+                    Text(
+                        stringResource(R.string.evening)
+                    )
+                })
+        }
+        Chart(
+            chart = lineChart(),
+            chartModelProducer = data,
+            startAxis = rememberStartAxis(),
+            bottomAxis = rememberBottomAxis(),
+            modifier = modifier
+        )
+    }
+
+}
 
 @Composable
 fun AppScaffold(
     appViewModel: AppViewModel,
     onTimeChanged: (year: Int, month: Int) -> Unit,
     onMorningWeightChanged: (DayWeightData) -> Unit,
-    onEveningWeightChanged: (DayWeightData) -> Unit
+    onEveningWeightChanged: (DayWeightData) -> Unit,
+    onStepsChanged: (DayStepsData) -> Unit,
 ) {
 
     var selectedYear by remember { mutableStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
     var selectedMonth by remember { mutableStateOf(Calendar.getInstance().get(Calendar.MONTH)) }
-    var showingCalendar by remember { mutableStateOf(false) }
+    var state by remember { mutableStateOf(AppScreenState.CALENDAR) }
 
     Scaffold(topBar = {
         Row {
-            MonthSelector(selectedMonth, modifier = Modifier.weight(0.7f)) {
+            MonthSelector(selectedMonth, modifier = Modifier.weight(0.7f, true)) {
                 selectedMonth = it
                 onTimeChanged(selectedYear, selectedMonth)
             }
-            YearSelector(selectedYear, modifier = Modifier.weight(0.3f)) {
+            YearSelector(selectedYear, modifier = Modifier.weight(0.3f, true)) {
                 selectedYear = it
                 onTimeChanged(selectedYear, selectedMonth)
             }
         }
     }, bottomBar = {
         BottomAppBar(actions = {
-            IconButton(onClick = { showingCalendar = true }) {
+            IconButton(onClick = { state = AppScreenState.CALENDAR }) {
                 Icon(
                     Icons.Filled.DateRange,
                     contentDescription = stringResource(R.string.weight_calendar_icon_desc)
                 )
             }
-            IconButton(onClick = { showingCalendar = false }) {
+            IconButton(onClick = { state = AppScreenState.CHART }) {
                 Icon(
                     Icons.Filled.Info,
                     contentDescription = stringResource(R.string.charts_icon_desc)
                 )
             }
+            IconButton(onClick = { state = AppScreenState.SETTINGS }) {
+                Icon(
+                    Icons.Filled.Build,
+                    contentDescription = stringResource(R.string.settings)
+                )
+            }
         })
     }) { innerPadding ->
-        CalendarEditor(
-            appViewModel = appViewModel,
-            year = selectedYear,
-            month = selectedMonth,
-            onMorningWeightChanged = onMorningWeightChanged,
-            onEveningWeightChanged = onEveningWeightChanged,
-            modifier = Modifier.padding(innerPadding)
-        )
+        when (state) {
+            AppScreenState.CALENDAR -> CalendarEditor(
+                appViewModel = appViewModel,
+                year = selectedYear,
+                month = selectedMonth,
+                onMorningWeightChanged = onMorningWeightChanged,
+                onEveningWeightChanged = onEveningWeightChanged,
+                onStepsChanged = onStepsChanged,
+                modifier = Modifier.padding(innerPadding)
+            )
+
+            AppScreenState.CHART -> ChartDisplay(
+                appViewModel = appViewModel,
+                modifier = Modifier.padding(innerPadding)
+            )
+
+            AppScreenState.SETTINGS -> AppSettings(
+                appViewModel = appViewModel,
+                modifier = Modifier.padding(innerPadding)
+            )
+        }
     }
 }
 

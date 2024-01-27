@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">WeightCalendar</string>
+    <string name="weight_calendar_icon_desc">Календарь</string>
+    <string name="charts_icon_desc">Графики</string>
     <string name="month">"Месяц: "</string>
     <string name="year">"Год: "</string>
     <string name="morning">Утро</string>
     <string name="evening">Вечер</string>
+    <string name="steps">Шаги</string>
+    <string name="settings">Settings</string>
+    <string name="min_steps">Мин. шагов</string>
 </resources>

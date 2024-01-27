@@ -6,4 +6,7 @@
     <string name="year">"Year: "</string>
     <string name="morning">Morning</string>
     <string name="evening">Evening</string>
+    <string name="steps">Steps</string>
+    <string name="settings">Settings</string>
+    <string name="min_steps">Min steps</string>
 </resources>

@@ -15,10 +15,13 @@ interface EntryDao {
     fun getAll(year: Int, month: Int): Flow<List<Entry>>
 
     @Query("UPDATE entry SET morning_weight = :weight WHERE year = :year and month = :month and day = :day")
-    suspend fun updateMorningWeight(year: Int, month: Int, day: Int, weight: Float)
+    suspend fun updateMorningWeight(year: Int, month: Int, day: Int, weight: Float?)
 
     @Query("UPDATE entry SET evening_weight = :weight WHERE year = :year and month = :month and day = :day")
-    suspend fun updateEveningWeight(year: Int, month: Int, day: Int, weight: Float)
+    suspend fun updateEveningWeight(year: Int, month: Int, day: Int, weight: Float?)
+
+    @Query("UPDATE entry SET steps = :steps WHERE year = :year and month = :month and day = :day")
+    suspend fun updateSteps(year: Int, month: Int, day: Int, steps: Int?)
 
     @Query("SELECT EXISTS(SELECT * FROM entry WHERE  year = :year and month = :month and day = :day)")
     fun exists(year: Int, month: Int, day: Int): Boolean
