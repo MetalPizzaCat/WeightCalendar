@@ -51,7 +51,7 @@ fun StepEntryField(
         label = { Text(label) },
         value = value,
         singleLine = true,
-        textStyle = TextStyle.Default.copy(fontSize = 24.sp, fontWeight = FontWeight.Bold),
+        textStyle = TextStyle.Default.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
         onValueChange = { value = it },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number

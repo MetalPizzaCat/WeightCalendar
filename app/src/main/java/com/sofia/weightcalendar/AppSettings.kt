@@ -39,7 +39,7 @@ fun AppSettings(appViewModel: AppViewModel, modifier: Modifier = Modifier) {
                     modifier = Modifier.weight(0.6f)
                 ) {
                     appViewModel.setTargetSteps(it.toIntOrNull() ?: 0)
-                    //isEditingSteps = false
+                    isEditingSteps = false
                 }
             } else {
                 Text(steps.toString(), fontSize = 24.sp)

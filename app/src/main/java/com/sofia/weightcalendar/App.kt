@@ -75,11 +75,11 @@ fun AppScaffold(
         Column {
             if (state != AppScreenState.SETTINGS) {
                 Row(modifier = Modifier.padding(innerPadding)) {
-                    MonthSelector(selectedMonth, modifier = Modifier.weight(0.7f, true)) {
+                    MonthSelector(selectedMonth, modifier = Modifier.weight(0.5f, true)) {
                         selectedMonth = it
                         onTimeChanged(selectedYear, selectedMonth)
                     }
-                    YearSelector(selectedYear, modifier = Modifier.weight(0.3f, true)) {
+                    YearSelector(selectedYear, modifier = Modifier.weight(0.5f, true)) {
                         selectedYear = it
                         onTimeChanged(selectedYear, selectedMonth)
                     }

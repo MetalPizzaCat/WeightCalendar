@@ -1,6 +1,7 @@
 package com.sofia.weightcalendar
 
 import android.graphics.Typeface
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -62,6 +63,7 @@ private val chartColors: List<Color> = listOf(
 private val bottomAxisValueFormatter =
     AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _ -> DateFormatSymbols().months[x.toInt() - 1] }
 
+private const val minDaysForWeekCalculation: Int = 12
 
 /**
  * Converts entry list into chart entry list
@@ -146,9 +148,18 @@ internal fun processValuesByYear(
  * Converts the entry list into chart entry list with day as the key and morning weight as value
  * @param offset A value that will be subtracted from the weight to keep it closer to the start of the chart
  */
-internal fun processValuesByDay(offset: Float, entries: List<Entry>?): List<FloatEntry> =
-    entries?.filter { it.morningWeight != null }
-        ?.map { i -> entryOf(i.day, i.morningWeight!! - offset) } ?: emptyList()
+internal fun processValuesByDay(
+    offset: Float,
+    entries: List<Entry>?,
+    morning: Boolean
+): List<FloatEntry> =
+    if (morning) {
+        entries?.filter { it.morningWeight != null }
+            ?.map { i -> entryOf(i.day, i.morningWeight!! - offset) } ?: emptyList()
+    } else {
+        entries?.filter { it.eveningWeight != null }
+            ?.map { i -> entryOf(i.day, i.eveningWeight!! - offset) } ?: emptyList()
+    }
 
 
 /**
@@ -203,15 +214,24 @@ fun ChartDisplay(
 
     val minWeight = getChartLowerLimit(entries = entries?.map { it.morningWeight })
     val maxWeight = getChartUpperLimit(entries = entries?.map { it.morningWeight })
-    val currentEntriesForMonth =
+    val currentMorningEntriesForMonth =
         entries?.count { it.month == month && it.morningWeight != null } ?: 0
-
+    val currentEveningEntriesForMonth =
+        entries?.count { it.month == month && it.morningWeight != null } ?: 0
     val data = ComposedChartEntryModelProducer.build {
         if (calcByMonth) {
             // because there is a period where user has not put enough for the graph to show
             // we make a temp graph that only shows values for this day
-            if (currentEntriesForMonth < 7) {
-                add(processValuesByDay(minWeight, entries?.filter { it.month == month }))
+            if (
+                (currentMorningEntriesForMonth < minDaysForWeekCalculation && morningSelected) ||
+                (currentEveningEntriesForMonth < minDaysForWeekCalculation && eveningSelected)
+            ) {
+                if (morningSelected) {
+                    add(processValuesByDay(minWeight, entries?.filter { it.month == month }, true))
+                }
+                if (eveningSelected) {
+                    add(processValuesByDay(minWeight, entries?.filter { it.month == month }, false))
+                }
             } else {
                 if (morningSelected) {
                     add(processValuesByWeek(month, year, minWeight, entries, true))
@@ -311,7 +331,7 @@ fun ChartDisplay(
                     },
                     title =
                     if (calcByMonth) {
-                        if (currentEntriesForMonth < 7) {
+                        if (currentMorningEntriesForMonth < minDaysForWeekCalculation) {
                             stringResource(R.string.day)
                         } else {
                             stringResource(R.string.week)
@@ -330,7 +350,8 @@ fun ChartDisplay(
                 isZoomEnabled = true,
                 modifier = modifier
                     .fillMaxHeight()
-                    .verticalScroll(rememberScrollState()),
+                    .verticalScroll(rememberScrollState())
+                    .background(Color.LightGray),
             )
         }
     }

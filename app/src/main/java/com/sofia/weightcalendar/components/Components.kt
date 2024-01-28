@@ -40,7 +40,11 @@ fun GatedOutlineTextField(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number
         ),
-        modifier = modifier,
+        modifier = modifier.onFocusChanged {
+            if (!it.isFocused && emitChangeOnFocusLoss) {
+                onValueChanged(value)
+            }
+        },
         keyboardActions = KeyboardActions(onDone = {
             onValueChanged(value)
         })
