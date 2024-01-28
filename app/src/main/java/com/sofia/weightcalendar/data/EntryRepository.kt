@@ -9,6 +9,8 @@ class EntryRepository(private val entryDao: EntryDao) {
 
     fun entriesForMonth(month: Int, year: Int) = entryDao.getAll(year, month)
 
+    fun entriesForYear(year: Int) = entryDao.getAll(year)
+
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun insert(entry: Entry) {

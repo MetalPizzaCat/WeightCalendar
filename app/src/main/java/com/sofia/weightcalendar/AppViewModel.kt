@@ -27,6 +27,9 @@ class AppViewModel(
     fun entriesForMonth(month: Int, year: Int) =
         repository.entriesForMonth(month, year).asLiveData()
 
+    fun entriesForYear(year: Int) =
+        repository.entriesForYear(year).asLiveData()
+
     fun getTargetSteps(): Flow<Int> {
         return dataStore.data.map {
             it[PreferenceKeys.TARGET_STEPS] ?: 0

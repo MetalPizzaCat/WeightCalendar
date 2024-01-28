@@ -1,12 +1,12 @@
 package com.sofia.weightcalendar
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -16,6 +16,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +31,7 @@ enum class AppScreenState {
     CALENDAR, CHART, SETTINGS
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScaffold(
     appViewModel: AppViewModel,
@@ -43,59 +45,67 @@ fun AppScaffold(
     var selectedMonth by remember { mutableStateOf(Calendar.getInstance().get(Calendar.MONTH)) }
     var state by remember { mutableStateOf(AppScreenState.CALENDAR) }
 
-    Scaffold(topBar = {
-        Row {
-            MonthSelector(selectedMonth, modifier = Modifier.weight(0.7f, true)) {
-                selectedMonth = it
-                onTimeChanged(selectedYear, selectedMonth)
-            }
-            YearSelector(selectedYear, modifier = Modifier.weight(0.3f, true)) {
-                selectedYear = it
-                onTimeChanged(selectedYear, selectedMonth)
-            }
-        }
-    }, bottomBar = {
-        BottomAppBar(actions = {
-            IconButton(onClick = { state = AppScreenState.CALENDAR }) {
-                Icon(
-                    Icons.Filled.DateRange,
-                    contentDescription = stringResource(R.string.weight_calendar_icon_desc)
-                )
-            }
-            IconButton(onClick = { state = AppScreenState.CHART }) {
-                Icon(
-                    Icons.Filled.Info,
-                    contentDescription = stringResource(R.string.charts_icon_desc)
-                )
-            }
-            IconButton(onClick = { state = AppScreenState.SETTINGS }) {
-                Icon(
-                    Icons.Filled.Build,
-                    contentDescription = stringResource(R.string.settings)
-                )
-            }
-        })
-    }) { innerPadding ->
-        when (state) {
-            AppScreenState.CALENDAR -> CalendarEditor(
-                appViewModel = appViewModel,
-                year = selectedYear,
-                month = selectedMonth,
-                onMorningWeightChanged = onMorningWeightChanged,
-                onEveningWeightChanged = onEveningWeightChanged,
-                onStepsChanged = onStepsChanged,
-                modifier = Modifier.padding(innerPadding)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = stringResource(R.string.app_name)) },
+                actions = {
+                    IconButton(onClick = { state = AppScreenState.CALENDAR }) {
+                        Icon(
+                            Icons.Filled.DateRange,
+                            contentDescription = stringResource(R.string.weight_calendar_icon_desc)
+                        )
+                    }
+                    IconButton(onClick = { state = AppScreenState.CHART }) {
+                        Icon(
+                            Icons.Filled.Info,
+                            contentDescription = stringResource(R.string.charts_icon_desc)
+                        )
+                    }
+                    IconButton(onClick = { state = AppScreenState.SETTINGS }) {
+                        Icon(
+                            Icons.Filled.Build,
+                            contentDescription = stringResource(R.string.settings)
+                        )
+                    }
+                }
             )
+        },
+    ) { innerPadding ->
+        Column {
+            if (state != AppScreenState.SETTINGS) {
+                Row(modifier = Modifier.padding(innerPadding)) {
+                    MonthSelector(selectedMonth, modifier = Modifier.weight(0.7f, true)) {
+                        selectedMonth = it
+                        onTimeChanged(selectedYear, selectedMonth)
+                    }
+                    YearSelector(selectedYear, modifier = Modifier.weight(0.3f, true)) {
+                        selectedYear = it
+                        onTimeChanged(selectedYear, selectedMonth)
+                    }
+                }
+            }
+            when (state) {
+                AppScreenState.CALENDAR -> CalendarEditor(
+                    appViewModel = appViewModel,
+                    year = selectedYear,
+                    month = selectedMonth,
+                    onMorningWeightChanged = onMorningWeightChanged,
+                    onEveningWeightChanged = onEveningWeightChanged,
+                    onStepsChanged = onStepsChanged,
+                )
 
-            AppScreenState.CHART -> ChartDisplay(
-                appViewModel = appViewModel,
-                modifier = Modifier.padding(innerPadding)
-            )
+                AppScreenState.CHART -> ChartDisplay(
+                    appViewModel = appViewModel,
+                    year = selectedYear,
+                    month = selectedMonth
+                )
 
-            AppScreenState.SETTINGS -> AppSettings(
-                appViewModel = appViewModel,
-                modifier = Modifier.padding(innerPadding)
-            )
+                AppScreenState.SETTINGS -> AppSettings(
+                    appViewModel = appViewModel,
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
     }
 }

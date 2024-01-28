@@ -14,6 +14,9 @@ interface EntryDao {
     @Query("SELECT * FROM entry WHERE year = :year and month = :month")
     fun getAll(year: Int, month: Int): Flow<List<Entry>>
 
+    @Query("SELECT * FROM entry WHERE year = :year")
+    fun getAll(year: Int): Flow<List<Entry>>
+
     @Query("UPDATE entry SET morning_weight = :weight WHERE year = :year and month = :month and day = :day")
     suspend fun updateMorningWeight(year: Int, month: Int, day: Int, weight: Float?)
 
