@@ -51,10 +51,10 @@ class SteppedYAxisDrawer(
             textAlign = android.graphics.Paint.Align.RIGHT
         }
         val totalHeight: Float = drawableArea.height
-        val labelCount: Int = max(((maxValue - minValue) / 0.5f).roundToInt(), 2)
+        val labelCount: Int = max(((maxValue - minValue) / step).roundToInt(), 2)
 
         for (i in 0..labelCount) {
-            val value = ((minValue * 2).roundToInt() / 2f) + 0.5f * i
+            val value = ((minValue * (1f / step).toInt()).roundToInt() / (1f / step)) + step * i
 
             val label = labelValueFormatter(value)
             val x =

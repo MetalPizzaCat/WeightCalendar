@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Календарь</string>
+    <string name="app_name">Вес по дням</string>
     <string name="weight_calendar_icon_desc">Календарь</string>
     <string name="charts_icon_desc">Графики</string>
     <string name="month">"Месяц: "</string>
@@ -19,6 +19,7 @@
     <string name="weekly">Еженедельно</string>
     <string name="monthly">Ежемесячно</string>
     <string name="not_enough_data_to_build_a_graph">Недостаточно данных для построения графика</string>
-    <string name="calendar">Календарь</string>
+    <string name="calendar">По дням</string>
     <string name="chart">График</string>
+    <string name="chart_step_label">Шаг графика</string>
 </resources>
