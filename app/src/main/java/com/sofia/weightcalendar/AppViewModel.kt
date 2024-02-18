@@ -1,8 +1,12 @@
 package com.sofia.weightcalendar
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +20,11 @@ import kotlinx.coroutines.launch
 
 private object PreferenceKeys {
     val TARGET_STEPS = intPreferencesKey("target_steps")
+    val CHART_STEP = floatPreferencesKey("chart_step")
+}
+
+enum class AppTabs {
+    CALENDAR, GRAPH, SETTINGS
 }
 
 class AppViewModel(
@@ -23,7 +32,12 @@ class AppViewModel(
     private val dataStore: DataStore<Preferences>
 ) :
     ViewModel() {
+    var currentTab by mutableStateOf(AppTabs.CALENDAR)
+        private set
 
+    fun setCurrentTab(tab : Int){
+        currentTab = AppTabs.entries[tab]
+    }
     fun entriesForMonth(month: Int, year: Int) =
         repository.entriesForMonth(month, year).asLiveData()
 
@@ -40,6 +54,20 @@ class AppViewModel(
         CoroutineScope(SupervisorJob()).launch {
             dataStore.edit { settings ->
                 settings[PreferenceKeys.TARGET_STEPS] = steps
+            }
+        }
+    }
+
+    fun getChartStep(): Flow<Float> {
+        return dataStore.data.map {
+            it[PreferenceKeys.CHART_STEP] ?: 0f
+        }
+    }
+
+    fun setChartStep(step: Float) {
+        CoroutineScope(SupervisorJob()).launch {
+            dataStore.edit { settings ->
+                settings[PreferenceKeys.CHART_STEP] = step
             }
         }
     }

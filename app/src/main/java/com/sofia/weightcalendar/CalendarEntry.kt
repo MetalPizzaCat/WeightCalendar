@@ -1,6 +1,5 @@
 package com.sofia.weightcalendar
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -10,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,7 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -46,35 +46,41 @@ fun StepEntryField(
     modifier: Modifier = Modifier,
     onValueChanged: (Int?) -> Unit
 ) {
-    var value by remember { mutableStateOf(currentValue?.toString() ?: "") }
+    var value by remember { mutableStateOf(currentValue) }
+
+    val bgColor = if ((value ?: 0) > targetValue) {
+        colorResource(R.color.green)
+    } else {
+        colorResource(R.color.red)
+    }
+
     OutlinedTextField(
         label = { Text(label) },
-        value = value,
+        value = value?.toString() ?: "",
         singleLine = true,
         textStyle = TextStyle.Default.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
-        onValueChange = { value = it },
+        onValueChange = { value = it.toIntOrNull() },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number
         ),
+        colors = if (currentValue == null) {
+            OutlinedTextFieldDefaults.colors()
+        } else {
+            OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = bgColor,
+                unfocusedContainerColor = bgColor,
+                unfocusedTextColor = colorResource(R.color.white),
+                focusedTextColor = colorResource(R.color.white)
+            )
+        },
         modifier = modifier
             .onFocusChanged {
                 if (!it.isFocused) {
-                    onValueChanged(value.toIntOrNull())
+                    onValueChanged(value)
                 }
-            }
-            .background(
-                color = if (value == "") {
-                    Color.White
-                } else {
-                    if ((value.toIntOrNull() ?: 0) < targetValue) {
-                        Color.Red
-                    } else {
-                        Color.Green
-                    }
-                }
-            ),
+            },
         keyboardActions = KeyboardActions(onDone = {
-            onValueChanged(value.toIntOrNull())
+            onValueChanged(value)
         })
     )
 }
@@ -152,7 +158,7 @@ fun DataEntryRow(
  *  @param year Currently selected year
  *  @param month Currently selected month
  *  @param onMorningWeightChanged Will be called when one of the child entry objects changes it's value
- *  @param onMorningWeightChanged Will be called when one of the child entry objects changes it's value
+ *  @param onEveningWeightChanged Will be called when one of the child entry objects changes it's value
  *  */
 @Composable
 fun CalendarEditor(
@@ -179,11 +185,11 @@ fun CalendarEditor(
                         DataEntryRow(
                             day = day.day,
                             // to ensure that week days are properly named in every language
-                            dayOfWeek = DateFormatSymbols().shortWeekdays[YearMonth.of(
+                            dayOfWeek = DateFormatSymbols().shortWeekdays[(YearMonth.of(
                                 year,
                                 month + 1
                             )
-                                .atDay(day.day).dayOfWeek.value],
+                                .atDay(day.day).dayOfWeek.value) % 7 + 1],
                             steps = day.steps,
                             morningWeight = day.morningWeight,
                             eveningWeight = day.eveningWeight,

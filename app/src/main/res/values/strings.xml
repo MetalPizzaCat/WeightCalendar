@@ -14,4 +14,11 @@
     <string name="month_axis_label">Month</string>
     <string name="weight">Weight</string>
     <string name="day">Day</string>
+    <string name="daily">Daily</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
+    <string name="not_enough_data_to_build_a_graph">Not enough data to build a graph</string>
+    <string name="calendar">Calendar</string>
+    <string name="chart">Chart</string>
+    <string name="chart_step_label">Chart step</string>
 </resources>
