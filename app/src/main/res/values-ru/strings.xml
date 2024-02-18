@@ -15,4 +15,8 @@
     <string name="month_axis_label">Месяц</string>
     <string name="weight">Вес</string>
     <string name="day">День</string>
+    <string name="daily">Ежедневно</string>
+    <string name="weekly">Еженедельно</string>
+    <string name="monthly">Ежемесячно</string>
+    <string name="not_enough_data_to_build_a_graph">Недостаточно данных для построения графика</string>
 </resources>

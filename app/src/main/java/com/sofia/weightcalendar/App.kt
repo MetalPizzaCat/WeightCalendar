@@ -95,7 +95,7 @@ fun AppScaffold(
                     onStepsChanged = onStepsChanged,
                 )
 
-                AppScreenState.CHART -> ChartDisplay(
+                AppScreenState.CHART -> ProgressChart(
                     appViewModel = appViewModel,
                     year = selectedYear,
                     month = selectedMonth
