@@ -1,5 +1,8 @@
 package com.sofia.weightcalendar
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -18,12 +21,21 @@ private object PreferenceKeys {
     val TARGET_STEPS = intPreferencesKey("target_steps")
 }
 
+enum class AppTabs {
+    CALENDAR, GRAPH, SETTINGS
+}
+
 class AppViewModel(
     private val repository: EntryRepository,
     private val dataStore: DataStore<Preferences>
 ) :
     ViewModel() {
+    var currentTab by mutableStateOf(AppTabs.CALENDAR)
+        private set
 
+    fun setCurrentTab(tab : Int){
+        currentTab = AppTabs.entries[tab]
+    }
     fun entriesForMonth(month: Int, year: Int) =
         repository.entriesForMonth(month, year).asLiveData()
 

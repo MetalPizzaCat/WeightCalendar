@@ -8,11 +8,17 @@
     <string name="morning">Утро</string>
     <string name="evening">Вечер</string>
     <string name="steps">Шаги</string>
-    <string name="settings">Settings</string>
+    <string name="settings">Настройки</string>
     <string name="min_steps">Мин. шагов</string>
     <string name="per_week">По неделям</string>
     <string name="week">Неделя</string>
     <string name="month_axis_label">Месяц</string>
     <string name="weight">Вес</string>
     <string name="day">День</string>
+    <string name="daily">Ежедневно</string>
+    <string name="weekly">Еженедельно</string>
+    <string name="monthly">Ежемесячно</string>
+    <string name="not_enough_data_to_build_a_graph">Недостаточно данных для построения графика</string>
+    <string name="calendar">Календарь</string>
+    <string name="chart">График</string>
 </resources>

@@ -13,7 +13,7 @@ android {
         minSdk = 33
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0.1"
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -66,10 +66,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$rootProject.lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.0-beta02")
+    implementation("com.github.tehras:charts:0.2.4-alpha")
     implementation("androidx.work:work-runtime-ktx:2.9.0")
-    implementation("com.patrykandpatrick.vico:compose:1.13.1")
-    implementation("com.patrykandpatrick.vico:compose-m3:1.13.1")
-    implementation("com.patrykandpatrick.vico:core:1.13.1")
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
     testImplementation("junit:junit:4.13.2")
