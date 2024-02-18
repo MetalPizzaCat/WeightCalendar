@@ -116,20 +116,20 @@ fun ProgressChart(
                     }
                 }
             }
+        }
 
-            if (hasEnoughData) {
-                LineChart(
-                    linesChartData = data,
-                    modifier = Modifier.fillMaxSize(),
-                    animation = simpleChartAnimation(),
-                    pointDrawer = FilledCircularPointDrawer(),
-                    xAxisDrawer = SimpleXAxisDrawer(),
-                    yAxisDrawer = SteppedYAxisDrawer(),
-                    horizontalOffset = 5f,
-                )
-            } else {
-                Text(stringResource(R.string.not_enough_data_to_build_a_graph))
-            }
+        if (hasEnoughData) {
+            LineChart(
+                linesChartData = data,
+                modifier = Modifier.fillMaxSize(),
+                animation = simpleChartAnimation(),
+                pointDrawer = FilledCircularPointDrawer(),
+                xAxisDrawer = SimpleXAxisDrawer(),
+                yAxisDrawer = SteppedYAxisDrawer(),
+                horizontalOffset = 5f,
+            )
+        } else {
+            Text(stringResource(R.string.not_enough_data_to_build_a_graph))
         }
     }
 }

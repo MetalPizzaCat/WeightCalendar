@@ -158,7 +158,7 @@ fun DataEntryRow(
  *  @param year Currently selected year
  *  @param month Currently selected month
  *  @param onMorningWeightChanged Will be called when one of the child entry objects changes it's value
- *  @param onMorningWeightChanged Will be called when one of the child entry objects changes it's value
+ *  @param onEveningWeightChanged Will be called when one of the child entry objects changes it's value
  *  */
 @Composable
 fun CalendarEditor(

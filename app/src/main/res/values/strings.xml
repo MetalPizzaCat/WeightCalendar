@@ -18,4 +18,6 @@
     <string name="weekly">Weekly</string>
     <string name="monthly">Monthly</string>
     <string name="not_enough_data_to_build_a_graph">Not enough data to build a graph</string>
+    <string name="calendar">Calendar</string>
+    <string name="chart">Chart</string>
 </resources>
