@@ -7,9 +7,11 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +29,7 @@ import com.sofia.weightcalendar.charts.SteppedYAxisDrawer
 import com.sofia.weightcalendar.charts.processValuesByDay
 import com.sofia.weightcalendar.charts.processValuesByWeek
 import com.sofia.weightcalendar.charts.processValuesByYear
+import kotlin.math.max
 
 enum class ChartDurationType { DAILY, WEEKLY, MONTHLY }
 
@@ -41,6 +44,7 @@ fun ProgressChart(
     month: Int,
     modifier: Modifier = Modifier
 ) {
+    val chartStep by appViewModel.getChartStep().collectAsState(initial = 0.5f)
     val entries by appViewModel.entriesForYear(year).observeAsState()
     var durationTypeSelectorExpanded by remember { mutableStateOf(false) }
     var durationType by remember { mutableStateOf(ChartDurationType.DAILY) }
@@ -125,7 +129,10 @@ fun ProgressChart(
                 animation = simpleChartAnimation(),
                 pointDrawer = FilledCircularPointDrawer(),
                 xAxisDrawer = SimpleXAxisDrawer(),
-                yAxisDrawer = SteppedYAxisDrawer(),
+                yAxisDrawer = SteppedYAxisDrawer(
+                    max(0.1f, chartStep),
+                    labelTextColor = MaterialTheme.colorScheme.inversePrimary
+                ),
                 horizontalOffset = 5f,
             )
         } else {
