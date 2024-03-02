@@ -22,7 +22,6 @@ class SteppedYAxisDrawer(
     private val step: Float = 0.5f,
     private val labelTextSize: TextUnit = 12.sp,
     private val labelTextColor: Color = Color.Black,
-    private val labelRatio: Int = 3,
     private val labelValueFormatter: LabelFormatter = { value -> "%.1f".format(value) },
     private val axisLineThickness: Dp = 1.dp,
     private val axisLineColor: Color = Color.Black
@@ -52,6 +51,7 @@ class SteppedYAxisDrawer(
         }
         val totalHeight: Float = drawableArea.height
         val labelCount: Int = max(((maxValue - minValue) / step).roundToInt(), 2)
+
 
         for (i in 0..labelCount) {
             val value = ((minValue * (1f / step).toInt()).roundToInt() / (1f / step)) + step * i

@@ -22,4 +22,7 @@
     <string name="calendar">По дням</string>
     <string name="chart">График</string>
     <string name="chart_step_label">Шаг графика</string>
+    <string name="current_date_range">"Период: "</string>
+    <string name="chart_settings">Настройки графика:</string>
+    <string name="general_settings">"Общие настройки: "</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.sofia.weightcalendar
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.datastore.core.DataStore
@@ -17,6 +18,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 private object PreferenceKeys {
     val TARGET_STEPS = intPreferencesKey("target_steps")
@@ -24,7 +26,7 @@ private object PreferenceKeys {
 }
 
 enum class AppTabs {
-    CALENDAR, GRAPH, SETTINGS
+    CALENDAR, GRAPH
 }
 
 class AppViewModel(
@@ -35,21 +37,53 @@ class AppViewModel(
     var currentTab by mutableStateOf(AppTabs.CALENDAR)
         private set
 
-    fun setCurrentTab(tab : Int){
+    /**
+     * Current type of chart to display
+     */
+    var currentChartDurationType by mutableStateOf(ChartDurationType.DAILY)
+
+    /**
+     * Current year selected via settings
+     */
+    var selectedYear by mutableIntStateOf(Calendar.getInstance().get(Calendar.YEAR))
+
+    /**
+     * Current month selected via settings
+     */
+    var selectedMonth by mutableIntStateOf(Calendar.getInstance().get(Calendar.MONTH))
+
+    /**
+     * Change tab to a new one based on id
+     * @param tab Tab value in id
+     */
+    fun setCurrentTab(tab: Int) {
         currentTab = AppTabs.entries[tab]
     }
+
+    /**
+     * Get all entries for a month
+     * @param month month to read from
+     * @param year year from which to read from
+     */
     fun entriesForMonth(month: Int, year: Int) =
         repository.entriesForMonth(month, year).asLiveData()
 
     fun entriesForYear(year: Int) =
         repository.entriesForYear(year).asLiveData()
 
+    /**
+     * Get current minimal steps value from android settings
+     */
     fun getTargetSteps(): Flow<Int> {
         return dataStore.data.map {
             it[PreferenceKeys.TARGET_STEPS] ?: 0
         }
     }
 
+    /**
+     * Set new minimal steps value and save it in settings
+     * @param steps New steps value
+     */
     fun setTargetSteps(steps: Int) {
         CoroutineScope(SupervisorJob()).launch {
             dataStore.edit { settings ->

@@ -17,9 +17,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -29,6 +31,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sofia.weightcalendar.components.GatedOutlineTextField
+import com.sofia.weightcalendar.data.Entry
+import com.sofia.weightcalendar.data.EntryDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.DateFormatSymbols
 import java.time.YearMonth
 
@@ -89,25 +95,20 @@ fun StepEntryField(
  * Component that handles input for the entire day
  * @param day Day in month which will be displayed
  * @param dayOfWeek Which day name to display under number. If null nothing is displayed
- * @param morningWeight Current morning weight
- * @param eveningWeight Current evening weight
  */
 @Composable
 fun DataEntryRow(
-    day: Int,
+    day: Entry,
     dayOfWeek: String?,
-    morningWeight: Float?,
-    eveningWeight: Float?,
-    steps: Int?,
     targetStepCount: Int,
-    onMorningWeightChanged: (Float?) -> Unit,
-    onEveningWeightChanged: (Float?) -> Unit,
-    onStepCountChanged: (Int?) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val entryDao = EntryDatabase.getInstance(context).entryDao()
     Row(modifier = Modifier.padding(5.dp)) {
         if (dayOfWeek == null) {
             Text(
-                text = day.toString(),
+                text = day.day.toString(),
                 modifier = Modifier.weight(0.2f),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -116,7 +117,7 @@ fun DataEntryRow(
         } else {
             Column() {
                 Text(
-                    text = day.toString(),
+                    text = day.day.toString(),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -129,25 +130,90 @@ fun DataEntryRow(
             }
         }
         GatedOutlineTextField(
-            text = morningWeight?.toString() ?: "",
+            text = day.morningWeight?.toString() ?: "",
             label = { Text(stringResource(R.string.morning)) },
             modifier = Modifier.weight(0.3f)
         ) {
-            onMorningWeightChanged(it.toFloatOrNull())
+            scope.launch(Dispatchers.IO) {
+                if (entryDao.exists(day.year, day.month, day.day)) {
+                    entryDao.updateMorningWeight(
+                        day.year,
+                        day.month,
+                        day.day,
+                        it.toFloatOrNull()
+                    )
+                } else {
+                    entryDao.insert(
+                        Entry(
+                            null,
+                            day.day,
+                            day.month,
+                            day.year,
+                            it.toFloatOrNull(),
+                            null,
+                            day.steps
+                        )
+                    )
+                }
+            }
         }
         GatedOutlineTextField(
-            text = eveningWeight?.toString() ?: "",
+            text = day.eveningWeight?.toString() ?: "",
             label = { Text(stringResource(R.string.evening)) },
             modifier = Modifier.weight(0.3f)
         ) {
-            onEveningWeightChanged(it.toFloatOrNull())
+            scope.launch(Dispatchers.IO) {
+                if (entryDao.exists(day.year, day.month, day.day)) {
+                    entryDao.updateEveningWeight(
+                        day.year,
+                        day.month,
+                        day.day,
+                        it.toFloatOrNull()
+                    )
+                } else {
+                    entryDao.insert(
+                        Entry(
+                            null,
+                            day.day,
+                            day.month,
+                            day.year,
+                            null,
+                            it.toFloatOrNull(),
+                            day.steps
+                        )
+                    )
+                }
+            }
         }
         StepEntryField(
             label = stringResource(R.string.steps),
-            currentValue = steps,
+            currentValue = day.steps,
             targetValue = targetStepCount,
             modifier = Modifier.weight(0.3f),
-            onValueChanged = onStepCountChanged
+            onValueChanged = {
+                scope.launch(Dispatchers.IO) {
+                    if (entryDao.exists(day.year, day.month, day.day)) {
+                        entryDao.updateSteps(
+                            day.year,
+                            day.month,
+                            day.day,
+                            it
+                        )
+                    } else {
+                        entryDao.insert(
+                            Entry(
+                                null,
+                                day.day,
+                                day.month,
+                                day.year,
+                                null,
+                                null,
+                                it
+                            )
+                        )
+                    }
+                }
+            }
         )
     }
 }
@@ -157,22 +223,18 @@ fun DataEntryRow(
  *  @param appViewModel Current view model that has access to the app data
  *  @param year Currently selected year
  *  @param month Currently selected month
- *  @param onMorningWeightChanged Will be called when one of the child entry objects changes it's value
- *  @param onEveningWeightChanged Will be called when one of the child entry objects changes it's value
  *  */
 @Composable
 fun CalendarEditor(
     appViewModel: AppViewModel,
     year: Int,
     month: Int,
-    onMorningWeightChanged: (DayWeightData) -> Unit,
-    onEveningWeightChanged: (DayWeightData) -> Unit,
-    onStepsChanged: (DayStepsData) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
     val minSteps by appViewModel.getTargetSteps().collectAsState(initial = 0)
     val entries by appViewModel.entriesForMonth(month, year).observeAsState()
+
     LazyColumn(modifier = modifier) {
         entries?.let {
             items(items = it, key = { entry -> entry.uid ?: -1 }) { day ->
@@ -183,47 +245,14 @@ fun CalendarEditor(
                 if (day.day <= YearMonth.of(year, month + 1).lengthOfMonth()) {
                     ElevatedCard {
                         DataEntryRow(
-                            day = day.day,
+                            day = day,
                             // to ensure that week days are properly named in every language
                             dayOfWeek = DateFormatSymbols().shortWeekdays[(YearMonth.of(
                                 year,
                                 month + 1
                             )
                                 .atDay(day.day).dayOfWeek.value) % 7 + 1],
-                            steps = day.steps,
-                            morningWeight = day.morningWeight,
-                            eveningWeight = day.eveningWeight,
-                            onEveningWeightChanged = { weight ->
-                                onEveningWeightChanged(
-                                    DayWeightData(
-                                        year,
-                                        month,
-                                        day.day,
-                                        weight
-                                    )
-                                )
-                            },
                             targetStepCount = minSteps,
-                            onMorningWeightChanged = { weight ->
-                                onMorningWeightChanged(
-                                    DayWeightData(
-                                        year,
-                                        month,
-                                        day.day,
-                                        weight
-                                    )
-                                )
-                            },
-                            onStepCountChanged = { steps ->
-                                onStepsChanged(
-                                    DayStepsData(
-                                        year,
-                                        month,
-                                        day.day,
-                                        steps
-                                    )
-                                )
-                            }
                         )
                     }
                 }

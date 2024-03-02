@@ -21,4 +21,7 @@
     <string name="calendar">Calendar</string>
     <string name="chart">Chart</string>
     <string name="chart_step_label">Chart step</string>
+    <string name="current_date_range">"Current date range: "</string>
+    <string name="chart_settings">"Chart settings: "</string>
+    <string name="general_settings">"General settings: "</string>
 </resources>
