@@ -53,9 +53,8 @@ fun ProgressChart(
             LineChartData(
                 points =
                 processValuesByWeek(
-                    month,
                     year,
-                    entries?.filter { it.month == month },
+                    entries,
                     true
                 ),
                 lineDrawer = SolidLineDrawer(),

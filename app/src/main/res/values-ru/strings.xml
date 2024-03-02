@@ -18,7 +18,7 @@
     <string name="daily">Ежедневно</string>
     <string name="weekly">Еженедельно</string>
     <string name="monthly">Ежемесячно</string>
-    <string name="not_enough_data_to_build_a_graph">Недостаточно данных для построения графика</string>
+    <string name="not_enough_data_to_build_a_graph">Недостаточно данных для построения графика. Убедитесь что достаточно данных для как минимум двух пунктов в графике</string>
     <string name="calendar">По дням</string>
     <string name="chart">График</string>
     <string name="chart_step_label">Шаг графика</string>

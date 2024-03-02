@@ -9,11 +9,9 @@ import java.time.YearMonth
  * Converts entry list into chart entry list
  * Conversion happens by taking an average for each week, empty weeks being skipped
  * @param year Which year should this work with. Should be the year from the entries
- * @param month Which month this operates on, used for filtering out the values
  * @param morning Should it calculate morning or evening values
  */
 fun processValuesByWeek(
-    month: Int,
     year: Int,
     entries: List<Entry>?,
     morning: Boolean
@@ -21,32 +19,42 @@ fun processValuesByWeek(
     if (entries.isNullOrEmpty()) {
         return emptyList()
     }
-    val targetEntries = entries.filter { it.month == month }
-    val monthLen = YearMonth.of(year, month + 1).lengthOfMonth()
     val result: ArrayList<LineChartData.Point> = ArrayList()
-    for (week in 1..monthLen step 7) {
-        var currentWeight = 0f
-        var currentValidEntryCount = 0
-        val remainingDays = Integer.min(monthLen - week, 7)
-        for (day in 1..remainingDays) {
-            val currentId = week + day - 1
-            val weight: Float? = if (morning) {
-                targetEntries[currentId].morningWeight
-            } else {
-                targetEntries[currentId].eveningWeight
-            }
-            if (weight != null) {
-                currentValidEntryCount++
-                currentWeight += (weight)
-            }
+
+    var weekCounter = 1
+    for (month in 1..12) {
+        val monthLen = YearMonth.of(year, month).lengthOfMonth()
+        // make sure there are actually entries for this month
+        if (!entries.any { it.month == (month - 1) }) {
+            weekCounter += monthLen / 7
+            continue
         }
-        if (currentValidEntryCount > 0) {
-            result.add(
-                LineChartData.Point(
-                    (currentWeight / currentValidEntryCount),
-                    (week / 7 + 1).toString(),
+        val monthEntries = entries.filter { it.month == (month - 1) }
+        for (week in 1..monthLen step 7) {
+            var currentWeight = 0f
+            var currentValidEntryCount = 0
+            val remainingDays = Integer.min(monthLen - week, 7)
+            for (day in 1..remainingDays) {
+                val currentId = week + day - 1
+                val weight: Float? = if (morning) {
+                    monthEntries[currentId].morningWeight
+                } else {
+                    monthEntries[currentId].eveningWeight
+                }
+                weight?.let {
+                    currentValidEntryCount++
+                    currentWeight += (it)
+                }
+            }
+            if (currentValidEntryCount > 0) {
+                result.add(
+                    LineChartData.Point(
+                        (currentWeight / currentValidEntryCount),
+                        weekCounter.toString(),
+                    )
                 )
-            )
+            }
+            weekCounter++
         }
     }
     return result

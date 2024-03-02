@@ -73,12 +73,13 @@ class NamedMonthsXAxisDrawer(
             val labelIncrements = drawableArea.width / (labels.size - 1)
             labels.forEachIndexed { index, label ->
                 label.toIntOrNull()?.let {
-                    if (it < DateFormatSymbols().months.size && it >= 0) {
+                    val month = it - 1
+                    if (month < DateFormatSymbols().months.size && month >= 0) {
                         val x = drawableArea.left + (labelIncrements * (index))
                         val y = drawableArea.bottom
 
                         canvas.nativeCanvas.drawText(
-                            DateFormatSymbols().months[it],
+                            DateFormatSymbols().months[month],
                             x,
                             y,
                             labelPaint
